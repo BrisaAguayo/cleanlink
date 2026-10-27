@@ -11,6 +11,8 @@ type CardProps = HTMLAttributes<HTMLElement> & {
   padding?: CardPadding;
   elevation?: CardElevation;
   tone?: CardTone;
+  /** md (12px) para tarjetas compactas en listados; lg (20px) para perfiles, modales y bloques. */
+  radius?: 'md' | 'lg';
   children: ReactNode;
 };
 
@@ -36,6 +38,7 @@ const tones: Record<CardTone, string> = {
  * - padding: sm (16px), md (20px), lg (32px).
  * - elevation: flat (solo borde), raised (shadow-sm), floating (shadow-md).
  * - tone: raised (blanco) o tint (aqua muy claro, para banners).
+ * - radius: md (12px) o lg (20px).
  * - as: etiqueta HTML. Las tarjetas que son enlaces se elevan al pasar el cursor.
  */
 export function Card({
@@ -43,12 +46,14 @@ export function Card({
   padding = 'md',
   elevation = 'flat',
   tone = 'raised',
+  radius = 'lg',
   className = '',
   children,
   ...rest
 }: CardProps) {
   const classes = [
-    'flex flex-col gap-4 rounded-lg text-ink no-underline',
+    'flex flex-col gap-4 text-ink no-underline',
+    radius === 'md' ? 'rounded-md' : 'rounded-lg',
     paddings[padding],
     elevations[elevation],
     tones[tone],

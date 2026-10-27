@@ -4,14 +4,18 @@ import {
   Button,
   Card,
   Check,
+  FilterCard,
   Icon,
   Logo,
   AppNavbar,
   PublicNavbar,
   ProfileTypeBadge,
+  ProviderCard,
   Rating,
   SearchBar,
   SelectField,
+  StarRating,
+  SuggestionCard,
   TextArea,
   TextField,
   VerifiedLabel,
@@ -128,6 +132,43 @@ export const componentDemos: Record<string, ComponentDemo> = {
       </div>
     ),
   },
+  StarRating: {
+    file: 'star-rating.tsx',
+    description: 'Cinco estrellas, solo valores enteros de 0 a 5 (sin medias). Rellenas en warning, vacías en line.',
+    render: () => (
+      <div className="flex flex-col gap-2">
+        <StarRating value={5} />
+        <StarRating value={3} />
+        <StarRating value={0} />
+      </div>
+    ),
+  },
+  ProviderCard: {
+    file: 'provider-card.tsx',
+    description: 'Proveedor en resultados: rating con decimal, tipo (Persona, Equipo o Empresa) en texto, reseñas, los 2 servicios destacados y horario de atención. Sin ubicación. Toda la tarjeta es enlace al perfil.',
+    render: () => (
+      <div className="grid max-w-4xl gap-4 md:grid-cols-2">
+        <ProviderCard
+          href="#"
+          provider={{ id: 'a', name: 'Brillo Total', kind: 'equipo', teamSize: 6, zone: 'Zona Río', rating: 4.9, reviews: 128, verified: true, services: ['profunda', 'oficinas', 'post-obra'], featuredServices: ['profunda', 'oficinas'], schedule: { mode: 'siempre' } }}
+        />
+        <ProviderCard
+          href="#"
+          provider={{ id: 'b', name: 'Rosa Hernández', kind: 'persona', zone: 'Centro', rating: 5, reviews: 22, verified: false, services: ['casas', 'mudanzas'], featuredServices: ['casas', 'mudanzas'], schedule: { mode: 'definido', days: ['sab', 'dom'], from: '09:00', to: '18:00' } }}
+        />
+      </div>
+    ),
+  },
+  SuggestionCard: {
+    file: 'suggestion-card.tsx',
+    description: 'Proveedor sugerido (Lo más destacado): nombre, Persona/Equipo/Empresa, y estrellas. Recibe un ProviderSummary.',
+    render: () => (
+      <div className="grid max-w-4xl gap-4 md:grid-cols-2">
+        <SuggestionCard provider={{ id: 'a', name: 'Brillo Total', kind: 'equipo', rating: 5 }} />
+        <SuggestionCard provider={{ id: 'b', name: 'María López', kind: 'persona', rating: 4 }} />
+      </div>
+    ),
+  },
   SearchBar: {
     file: 'search-bar.tsx',
     description: 'Buscador de servicio + zona, sin sesión. Entrega { query, zone } en onSearch.',
@@ -159,7 +200,7 @@ export const componentDemos: Record<string, ComponentDemo> = {
   },
   Card: {
     file: 'card.tsx',
-    description: 'padding sm/md/lg · elevation flat/raised/floating · tone raised/tint · as="a" se eleva al pasar el cursor.',
+    description: 'padding sm/md/lg · elevation flat/raised/floating · tone raised/tint · radius md/lg · as="a" se eleva al pasar el cursor.',
     render: () => (
       <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
         <Card as="a" href="#" elevation="raised">
@@ -188,6 +229,18 @@ export const componentDemos: Record<string, ComponentDemo> = {
           <span className="text-heading">¿No encuentras lo que buscas?</span>
           <Button className="self-start">Publicar solicitud</Button>
         </Card>
+      </div>
+    ),
+  },
+  FilterCard: {
+    file: 'filter-card.tsx',
+    description: 'Filtro seleccionable con icono y texto, sin recuadro. Gris en reposo; icono y texto en primary al pasar el cursor o seleccionado.',
+    render: () => (
+      <div className="grid max-w-2xl grid-cols-2 gap-4 md:grid-cols-4">
+        <FilterCard icon="star" label="Mejores calificaciones" selected />
+        <FilterCard icon="trending_up" label="Más solicitados" />
+        <FilterCard icon="home" label="Limpieza residencial" />
+        <FilterCard icon="apartment" label="Limpieza comercial" />
       </div>
     ),
   },
