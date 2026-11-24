@@ -1,6 +1,8 @@
 import type { FormEvent } from 'react';
+import { zones } from '../data/services';
 import { Button } from './button';
 import { Icon } from './icon';
+import { ZoneInput } from './zone-input';
 
 export type SearchQuery = {
   /** Qué se quiere limpiar o el servicio buscado. */
@@ -14,7 +16,7 @@ type SearchBarProps = {
 };
 
 /**
- * Buscador de servicio + zona. No requiere sesión.
+ * Buscador de servicio + zona (con sugerencias de colonias). No requiere sesión.
  * Entrega lo escrito en `onSearch`; quien lo usa decide a dónde llevarlo.
  */
 export function SearchBar({ onSearch }: SearchBarProps) {
@@ -43,16 +45,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
           className="min-w-0 flex-1 bg-transparent text-body text-ink outline-none placeholder:text-ink-muted"
         />
       </label>
-      <label className="flex min-h-12 flex-[1_1_160px] items-center gap-2 border-line px-3 sm:border-l">
-        <Icon name="location_on" className="text-ink-muted" />
-        <span className="sr-only">Zona</span>
-        <input
-          name="zone"
-          type="text"
-          placeholder="Colonia o ciudad"
-          className="min-w-0 flex-1 bg-transparent text-body text-ink outline-none placeholder:text-ink-muted"
-        />
-      </label>
+      <ZoneInput name="zone" options={zones} placeholder="Colonia o ciudad" listTitle="Colonias de Tijuana" />
       <Button type="submit" size="lg" className="grow sm:grow-0">
         Buscar
       </Button>

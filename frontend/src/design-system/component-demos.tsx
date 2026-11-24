@@ -283,9 +283,10 @@ export const componentDemos: Record<string, ComponentDemo> = {
   },
   AppNavbar: {
     file: 'app-navbar.tsx',
-    description: 'Navegación dentro de la plataforma (con sesión): logo, notificaciones, perfil y menú. Los iconos aún no despliegan nada.',
+    description:
+      'Navegación dentro de la plataforma (con sesión). El logo lleva al inicio de la cuenta; notificaciones, perfil y menú abren un panel informativo (uno a la vez, se cierra con clic fuera o Escape). Sin sesión, el perfil invita a entrar.',
     render: () => (
-      <div className="overflow-hidden rounded-md border border-line">
+      <div className="min-h-[360px] rounded-md border border-line">
         <AppNavbar />
       </div>
     ),
