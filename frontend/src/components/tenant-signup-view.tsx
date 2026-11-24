@@ -101,7 +101,7 @@ export function TenantSignupView() {
 
   return (
     <div className="min-h-svh">
-      <PublicNavbar links={links} loginHref="/login" signupHref="/registro/proveedor" />
+      <PublicNavbar links={links} loginHref="/login" signupHref="/registro" />
       <main className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-12">
         <div className="flex flex-col gap-2">
           <h1 className="text-title">Registra tu negocio de limpieza</h1>

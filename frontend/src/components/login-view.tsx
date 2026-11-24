@@ -32,7 +32,7 @@ export function LoginView() {
 
   return (
     <div className="min-h-svh">
-      <PublicNavbar links={links} loginHref="/login" signupHref="/registro/proveedor" />
+      <PublicNavbar links={links} loginHref="/login" signupHref="/registro" />
       <main className="mx-auto flex max-w-md flex-col gap-6 px-6 py-16">
         <div className="flex flex-col gap-2">
           <h1 className="text-title">Iniciar sesión</h1>
@@ -67,9 +67,9 @@ export function LoginView() {
           </form>
         </Card>
         <p className="text-body-sm text-ink-muted">
-          ¿Ofreces servicios de limpieza?{' '}
-          <a href="/registro/proveedor" className="text-primary">
-            Registra tu negocio
+          ¿No tienes cuenta?{' '}
+          <a href="/registro" className="text-primary">
+            Crea una
           </a>
         </p>
       </main>
