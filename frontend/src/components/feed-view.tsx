@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { mockFeaturedProviders } from '../data/mock-providers';
 import { AppNavbar } from './app-navbar';
 import { FilterCard } from './filter-card';
@@ -16,21 +15,25 @@ const filters: { value: FeedFilter; label: string; icon: string }[] = [
 
 /** Pantalla principal dentro de la plataforma: buscador, filtros y lo más destacado. */
 export function FeedView() {
-  const [filter, setFilter] = useState<FeedFilter | null>(null);
   // API: GET /api/providers/destacados — proveedores con más movimiento.
   const featured = mockFeaturedProviders;
 
-  function handleSearch(search: SearchQuery) {
+  function goToResults(search: SearchQuery | null, filter: FeedFilter | null) {
     // La búsqueda viaja en la URL; la pantalla de resultados hará la llamada a la API.
     const params = new URLSearchParams();
-    if (search.query) params.set('q', search.query);
-    if (search.zone) params.set('zona', search.zone);
+    if (search?.query) params.set('q', search.query);
+    if (search?.zone) params.set('zona', search.zone);
     if (filter) params.set('filtro', filter);
     window.location.assign(`/resultados?${params}`);
   }
 
+  function handleSearch(search: SearchQuery) {
+    goToResults(search, null);
+  }
+
+  // Cada tarjeta abre los resultados con su filtro aplicado.
   function handleFilter(value: FeedFilter) {
-    setFilter(filter === value ? null : value);
+    goToResults(null, value);
   }
 
   return (
@@ -47,7 +50,6 @@ export function FeedView() {
               key={f.value}
               icon={f.icon}
               label={f.label}
-              selected={filter === f.value}
               onClick={() => handleFilter(f.value)}
             />
           ))}

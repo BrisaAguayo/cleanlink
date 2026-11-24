@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { mockListings } from '../data/mock-listings';
+import { matchesQuery, normalize } from '../data/search';
 import { zones } from '../data/services';
 import type { ProviderKind } from '../types/provider';
 import { AppNavbar } from './app-navbar';
@@ -17,13 +18,17 @@ const tabs: { value: KindTab; label: string }[] = [
   { value: 'empresa', label: 'Empresas' },
 ];
 
+/** Colonia del catálogo que coincide con lo escrito ("zona rio" -> "Zona Río"), o '' si no está. */
+function knownZone(text: string) {
+  return zones.find((z) => normalize(z) === normalize(text)) ?? '';
+}
+
 /** Filtros iniciales a partir de la URL que arma el feed (?q=&zona=&filtro=). */
 function initialFilters(params: URLSearchParams): ResultsFiltersValue {
   const filter = params.get('filtro');
-  const zone = params.get('zona') ?? '';
   return {
     services: filter === 'residencial' ? ['casas'] : filter === 'comercial' ? ['oficinas'] : [],
-    zone: zones.includes(zone) ? zone : '',
+    zone: knownZone(params.get('zona') ?? ''),
     minRating: filter === 'mejor-calificados' ? 4.5 : 0,
     verifiedOnly: false,
   };
@@ -32,7 +37,8 @@ function initialFilters(params: URLSearchParams): ResultsFiltersValue {
 /** Pantalla de resultados de búsqueda (Explorar en el diseño). */
 export function ResultsView() {
   const params = new URLSearchParams(window.location.search);
-  const query = params.get('q');
+  const query = params.get('q')?.trim() ?? '';
+  const typedPlace = params.get('zona')?.trim() ?? '';
   const sortByRequests = params.get('filtro') === 'mas-solicitados';
 
   const [filters, setFilters] = useState(() => initialFilters(params));
@@ -42,6 +48,7 @@ export function ResultsView() {
   //      &minRating={filters.minRating}&verified={filters.verifiedOnly}&kind={tab}&sort={rating|requests}
   // Mientras tanto se filtra y ordena localmente sobre los datos de prueba.
   const results = mockListings
+    .filter((p) => matchesQuery(p, query))
     .filter((p) => tab === 'todos' || p.kind === tab)
     .filter((p) => filters.services.length === 0 || filters.services.some((s) => p.services.includes(s)))
     .filter((p) => !filters.zone || p.zone === filters.zone)
@@ -49,7 +56,8 @@ export function ResultsView() {
     .filter((p) => !filters.verifiedOnly || p.verified)
     .sort((a, b) => (sortByRequests ? b.reviews - a.reviews : b.rating - a.rating));
 
-  const place = filters.zone || 'Tijuana';
+  // El título muestra el lugar elegido: la colonia del filtro o, si no está en el catálogo, lo que escribió el usuario.
+  const place = filters.zone || (typedPlace && !knownZone(typedPlace) ? typedPlace : 'Tijuana');
   const sortLabel = sortByRequests ? 'ordenados por solicitudes' : 'ordenados por calificación';
 
   return (
@@ -89,7 +97,16 @@ export function ResultsView() {
             </ul>
           ) : (
             <p className="rounded-lg border border-line bg-surface-raised p-8 text-center text-body text-ink-muted">
-              No hay proveedores con estos filtros. Prueba quitando alguno.
+              {query ? (
+                <>
+                  No hay proveedores que coincidan con “{query}”.{' '}
+                  <a href="/resultados" className="text-primary">
+                    Ver todos
+                  </a>
+                </>
+              ) : (
+                'No hay proveedores con estos filtros. Prueba quitando alguno.'
+              )}
             </p>
           )}
 
