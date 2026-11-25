@@ -57,7 +57,7 @@ export function ZoneInput({ options, name, placeholder, listTitle }: ZoneInputPr
   }
 
   return (
-    <div className="relative flex min-h-12 flex-[1_1_160px] border-line sm:border-l">
+    <div className="relative flex min-h-12 flex-[1_1_140px] border-line sm:border-l">
       <label className="flex flex-1 items-center gap-2 px-3">
         <Icon name="location_on" className="text-ink-muted" />
         <span className="sr-only">Zona</span>
@@ -80,7 +80,7 @@ export function ZoneInput({ options, name, placeholder, listTitle }: ZoneInputPr
           onFocus={() => setOpen(true)}
           onBlur={() => setOpen(false)}
           onKeyDown={handleKeyDown}
-          className="min-w-0 flex-1 bg-transparent text-body text-ink outline-none placeholder:text-ink-muted"
+          className="w-full min-w-0 flex-1 bg-transparent text-body text-ink outline-none placeholder:text-ink-muted"
         />
       </label>
 

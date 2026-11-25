@@ -35,14 +35,14 @@ export function SearchBar({ onSearch }: SearchBarProps) {
       onSubmit={handleSubmit}
       className="flex flex-wrap gap-2 rounded-lg border border-line bg-surface-raised p-2 shadow-md"
     >
-      <label className="flex min-h-12 flex-[1_1_200px] items-center gap-2 px-3">
+      <label className="flex min-h-12 flex-[2_1_200px] items-center gap-2 px-3">
         <Icon name="search" className="text-ink-muted" />
         <span className="sr-only">Servicio</span>
         <input
           name="query"
           type="text"
           placeholder="¿Qué necesitas limpiar?"
-          className="min-w-0 flex-1 bg-transparent text-body text-ink outline-none placeholder:text-ink-muted"
+          className="w-full min-w-0 flex-1 bg-transparent text-body text-ink outline-none placeholder:text-ink-muted"
         />
       </label>
       <ZoneInput name="zone" options={zones} placeholder="Colonia" listTitle="Colonias de Tijuana" />
