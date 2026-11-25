@@ -183,8 +183,6 @@ function ProviderProfile({ provider }: { provider: ProviderListing }) {
         </div>
 
         <aside className="flex min-w-0 flex-[1_1_340px] flex-col gap-6">
-          {pricing && <QuoteRequestCard provider={provider} pricing={pricing} />}
-
           <Card padding="lg" aria-labelledby="informacion">
             <h2 id="informacion" className="text-heading">
               Información
@@ -214,6 +212,8 @@ function ProviderProfile({ provider }: { provider: ProviderListing }) {
           </Card>
         </aside>
       </div>
+
+      {pricing && <QuoteRequestCard provider={provider} pricing={pricing} />}
     </>
   );
 }
