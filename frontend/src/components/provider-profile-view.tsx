@@ -1,16 +1,18 @@
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { formatMoney } from '../data/format';
 import { mockListings } from '../data/mock-listings';
+import { mockPricing } from '../data/mock-pricing';
 import { providerKindLabels } from '../data/provider-kinds';
 import { formatSchedule } from '../data/schedule';
 import { services } from '../data/services';
-import { getSession, isProviderBrowsing } from '../session/session';
-import type { ProviderListing } from '../types/provider';
+import type { ProviderListing, ServiceId } from '../types/provider';
 import { AppNavbar } from './app-navbar';
 import { Avatar } from './avatar';
 import { Badge } from './badge';
 import { Button } from './button';
 import { Card } from './card';
 import { Icon } from './icon';
+import { QuoteRequestCard } from './quote-request-card';
 import { Rating } from './rating';
 
 // Regla 3 de ANOTACIONES.txt: en el perfil la ubicación es SOLO ciudad y estado, nunca la colonia.
@@ -35,55 +37,6 @@ function InfoRow({ icon, label, children }: { icon: string; label: string; child
         <dt className="text-caption text-ink-muted">{label}</dt>
         <dd className="m-0 text-body-sm font-semibold">{children}</dd>
       </div>
-    </div>
-  );
-}
-
-/**
- * Acción para contratar.
- * - Sin sesión: lleva a iniciar sesión (regla 1 de ANOTACIONES.txt).
- * - Proveedor navegando: deshabilitada; solo puede ver la información.
- * - Cliente: el flujo de solicitud aún no existe, así que se avisa en pantalla.
- */
-function HireAction() {
-  const [notice, setNotice] = useState(false);
-  const session = getSession();
-
-  if (!session) {
-    return (
-      <div className="flex flex-col gap-2">
-        <Button href="/login" size="lg" icon="event_available">
-          Solicitar servicio
-        </Button>
-        <p className="text-caption text-ink-muted">Inicia sesión para contratar.</p>
-      </div>
-    );
-  }
-
-  if (isProviderBrowsing()) {
-    return (
-      <div className="flex flex-col gap-2">
-        <Button size="lg" icon="event_available" disabled aria-describedby="aviso-proveedor">
-          Solicitar servicio
-        </Button>
-        <p id="aviso-proveedor" className="flex items-start gap-1 text-caption text-ink-muted">
-          <Icon name="info" size={14} className="mt-px flex-none" />
-          Estás navegando como proveedor: puedes ver la información, pero no contratar servicios.
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-2">
-      <Button size="lg" icon="event_available" onClick={() => setNotice(true)}>
-        Solicitar servicio
-      </Button>
-      {notice && (
-        <p role="status" className="text-caption text-ink-muted">
-          Muy pronto podrás enviar tu solicitud desde aquí.
-        </p>
-      )}
     </div>
   );
 }
@@ -126,6 +79,11 @@ function ProviderProfile({ provider }: { provider: ProviderListing }) {
   const isGroup = provider.kind !== 'persona';
   const featured = services.filter((s) => provider.featuredServices.includes(s.id));
   const others = services.filter((s) => provider.services.includes(s.id) && !provider.featuredServices.includes(s.id));
+  const pricing = mockPricing[provider.id];
+  const price = (id: ServiceId) => {
+    const value = pricing?.prices[id];
+    return value === undefined ? null : `${formatMoney(value)} / m²`;
+  };
 
   return (
     <>
@@ -175,17 +133,23 @@ function ProviderProfile({ provider }: { provider: ProviderListing }) {
                   key={s.id}
                   className="flex items-center justify-between gap-3 rounded-md border border-primary bg-primary-soft px-4 py-3"
                 >
-                  <span className="flex items-center gap-2 text-label text-on-primary-soft">
-                    <Icon name="star" size={18} filled />
-                    {s.label}
+                  <span className="flex flex-col gap-0.5">
+                    <span className="flex items-center gap-2 text-label text-on-primary-soft">
+                      <Icon name="star" size={18} filled />
+                      {s.label}
+                    </span>
+                    {price(s.id) && <span className="pl-[26px] text-caption text-on-primary-soft">{price(s.id)}</span>}
                   </span>
                   <span className="text-caption font-semibold text-on-primary-soft">Destacado</span>
                 </li>
               ))}
               {others.map((s) => (
-                <li key={s.id} className="flex items-center gap-2 rounded-md border border-line px-4 py-3 text-label">
-                  <Icon name="check_circle" size={18} className="text-primary" />
-                  {s.label}
+                <li key={s.id} className="flex flex-col gap-0.5 rounded-md border border-line px-4 py-3">
+                  <span className="flex items-center gap-2 text-label">
+                    <Icon name="check_circle" size={18} className="text-primary" />
+                    {s.label}
+                  </span>
+                  {price(s.id) && <span className="pl-[26px] text-caption text-ink-muted">{price(s.id)}</span>}
                 </li>
               ))}
             </ul>
@@ -218,13 +182,8 @@ function ProviderProfile({ provider }: { provider: ProviderListing }) {
           </Card>
         </div>
 
-        <aside className="flex min-w-0 flex-[1_1_300px] flex-col gap-6 md:sticky md:top-6">
-          <Card padding="lg" elevation="raised" aria-labelledby="contratar">
-            <h2 id="contratar" className="text-heading">
-              Contratar
-            </h2>
-            <HireAction />
-          </Card>
+        <aside className="flex min-w-0 flex-[1_1_340px] flex-col gap-6">
+          {pricing && <QuoteRequestCard provider={provider} pricing={pricing} />}
 
           <Card padding="lg" elevation="raised" aria-labelledby="informacion">
             <h2 id="informacion" className="text-heading">
@@ -237,6 +196,11 @@ function ProviderProfile({ provider }: { provider: ProviderListing }) {
               <InfoRow icon="badge" label="Personas que atienden">
                 {teamLabel(provider)}
               </InfoRow>
+              {pricing && (
+                <InfoRow icon="square_foot" label="Superficie máxima que atiende">
+                  {pricing.maxM2.toLocaleString('es-MX')} m²
+                </InfoRow>
+              )}
               <InfoRow icon="schedule" label="Horario de atención">
                 {formatSchedule(provider.schedule)}
               </InfoRow>
