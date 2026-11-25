@@ -7,7 +7,7 @@ import { ZoneInput } from './zone-input';
 export type SearchQuery = {
   /** Qué se quiere limpiar o el servicio buscado. */
   query: string;
-  /** Colonia o ciudad. */
+  /** Colonia. */
   zone: string;
 };
 
@@ -45,7 +45,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
           className="min-w-0 flex-1 bg-transparent text-body text-ink outline-none placeholder:text-ink-muted"
         />
       </label>
-      <ZoneInput name="zone" options={zones} placeholder="Colonia o ciudad" listTitle="Colonias de Tijuana" />
+      <ZoneInput name="zone" options={zones} placeholder="Colonia" listTitle="Colonias de Tijuana" />
       <Button type="submit" size="lg" className="grow sm:grow-0">
         Buscar
       </Button>
