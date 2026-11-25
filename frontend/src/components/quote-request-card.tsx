@@ -67,8 +67,8 @@ export function QuoteRequestCard({ provider, pricing }: QuoteRequestCardProps) {
 
   if (sent && quote) {
     return (
-      <Card padding="lg" elevation="raised" role="status">
-        <span className="flex size-12 items-center justify-center rounded-full bg-primary-soft text-on-primary-soft">
+      <Card padding="lg" role="status">
+        <span className="flex size-12 items-center justify-center rounded-md bg-primary-soft text-on-primary-soft">
           <Icon name="check" size={28} />
         </span>
         <div className="flex flex-col gap-1">
@@ -90,7 +90,7 @@ export function QuoteRequestCard({ provider, pricing }: QuoteRequestCardProps) {
   }
 
   return (
-    <Card as="section" padding="lg" elevation="raised" aria-labelledby="cotizar">
+    <Card as="section" padding="lg" aria-labelledby="cotizar">
       <div className="flex flex-col gap-1">
         <h2 id="cotizar" className="text-heading">
           Cotiza y solicita
