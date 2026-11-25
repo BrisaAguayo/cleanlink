@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { statusLabels, type RequestStatus, type ServiceRequest } from '../data/service-requests';
 import { Chip } from './chip';
 import { RequestCard } from './request-card';
+import { ServiceSummaryCard } from './service-summary-card';
 
 type Filter = 'todos' | RequestStatus;
 
@@ -11,11 +12,13 @@ type RequestListProps = {
   requests: ServiceRequest[];
   viewer: 'proveedor' | 'cliente';
   emptyText: string;
-  onAccept?: (id: string) => void;
 };
 
-/** Lista de solicitudes con filtro por estado. */
-export function RequestList({ requests, viewer, emptyText, onAccept }: RequestListProps) {
+/**
+ * Lista de solicitudes con filtro por estado.
+ * El proveedor ve tarjetas resumidas que llevan al detalle; el cliente, la tarjeta completa.
+ */
+export function RequestList({ requests, viewer, emptyText }: RequestListProps) {
   const [filter, setFilter] = useState<Filter>('todos');
   const visible = filter === 'todos' ? requests : requests.filter((r) => r.status === filter);
 
@@ -33,7 +36,11 @@ export function RequestList({ requests, viewer, emptyText, onAccept }: RequestLi
         <ul className="m-0 grid list-none gap-4 p-0 md:grid-cols-2">
           {visible.map((request) => (
             <li key={request.id}>
-              <RequestCard request={request} viewer={viewer} onAccept={onAccept} />
+              {viewer === 'proveedor' ? (
+                <ServiceSummaryCard request={request} href={`/panel/servicio?id=${encodeURIComponent(request.id)}`} />
+              ) : (
+                <RequestCard request={request} />
+              )}
             </li>
           ))}
         </ul>

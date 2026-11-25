@@ -1,55 +1,28 @@
 import { formatDate, formatMoney } from '../data/format';
 import { providerKindLabels } from '../data/provider-kinds';
-import { statusLabels, type ClientKind, type RequestStatus, type ServiceRequest } from '../data/service-requests';
+import type { ServiceRequest } from '../data/service-requests';
 import { spaceTypeLabel } from '../data/space-types';
 import { Avatar } from './avatar';
-import { Badge, type BadgeTone } from './badge';
-import { Button } from './button';
 import { Card } from './card';
 import { Icon } from './icon';
-
-const statusTones: Record<RequestStatus, BadgeTone> = {
-  pendiente: 'warning',
-  aceptada: 'persona',
-  finalizada: 'neutral',
-};
-
-const clientKindLabels: Record<ClientKind, string> = {
-  persona: 'Persona',
-  empresa: 'Empresa',
-  institucion: 'Institución',
-};
-
-type RequestCardProps = {
-  request: ServiceRequest;
-  /** Desde qué lado se ve: el proveedor ve al cliente; el cliente ve al proveedor. */
-  viewer: 'proveedor' | 'cliente';
-  /** Solo proveedor: aceptar una solicitud pendiente. */
-  onAccept?: (id: string) => void;
-};
+import { StatusBadge } from './status-badge';
 
 /**
- * Servicio solicitado o contratado: con quién, qué, dónde, cuándo y cuánto.
- * El proveedor puede aceptar las pendientes; fuera de eso es solo informativa.
+ * Servicio contratado, visto por el cliente: con quién, qué, dónde, cuándo y cuánto.
+ * Solo informativa. (El proveedor usa ServiceSummaryCard y el detalle del servicio.)
  */
-export function RequestCard({ request, viewer, onAccept }: RequestCardProps) {
-  const canAccept = viewer === 'proveedor' && request.status === 'pendiente' && onAccept;
-  const { client, provider } = request;
-  const name = viewer === 'proveedor' ? client.name : provider.name;
-  const kind = viewer === 'proveedor' ? clientKindLabels[client.kind] : providerKindLabels[provider.kind];
-  const isGroup = viewer === 'proveedor' ? client.kind !== 'persona' : provider.kind !== 'persona';
+export function RequestCard({ request }: { request: ServiceRequest }) {
+  const { provider } = request;
 
   return (
-    <Card as="article" elevation="raised" radius="md" className="h-full">
+    <Card as="article" radius="md" className="h-full">
       <div className="flex items-start gap-3">
-        <Avatar name={name} isGroup={isGroup} size={44} />
+        <Avatar name={provider.name} isGroup={provider.kind !== 'persona'} size={44} />
         <div className="flex min-w-0 flex-1 flex-col">
-          <span className="text-caption text-ink-muted">
-            {viewer === 'proveedor' ? 'Cliente' : 'Proveedor'} · {kind}
-          </span>
-          <h3 className="text-body font-semibold break-words">{name}</h3>
+          <span className="text-caption text-ink-muted">Proveedor · {providerKindLabels[provider.kind]}</span>
+          <h3 className="text-body font-semibold break-words">{provider.name}</h3>
         </div>
-        <Badge tone={statusTones[request.status]}>{statusLabels[request.status]}</Badge>
+        <StatusBadge status={request.status} />
       </div>
 
       <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line pb-3">
@@ -87,37 +60,12 @@ export function RequestCard({ request, viewer, onAccept }: RequestCardProps) {
         )}
       </dl>
 
-      <div className="mt-auto flex flex-wrap gap-x-4 gap-y-2 border-t border-line pt-3 text-caption text-ink-muted">
-        {viewer === 'proveedor' ? (
-          <>
-            <span className="inline-flex items-center gap-1">
-              <Icon name="badge" size={16} />
-              {client.contact}
-            </span>
-            <a href={`mailto:${client.email}`} className="inline-flex items-center gap-1 text-ink-muted hover:text-primary">
-              <Icon name="mail" size={16} />
-              {client.email}
-            </a>
-            {client.phone && (
-              <a href={`tel:${client.phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-1 text-ink-muted hover:text-primary">
-                <Icon name="call" size={16} />
-                {client.phone}
-              </a>
-            )}
-          </>
-        ) : (
-          <a href={`/proveedor?id=${provider.id}`} className="inline-flex items-center gap-1 text-label text-primary no-underline">
-            Ver perfil del proveedor
-            <Icon name="arrow_forward" size={16} />
-          </a>
-        )}
+      <div className="mt-auto border-t border-line pt-3">
+        <a href={`/proveedor?id=${provider.id}`} className="inline-flex items-center gap-1 text-label text-primary no-underline">
+          Ver perfil del proveedor
+          <Icon name="arrow_forward" size={16} />
+        </a>
       </div>
-
-      {canAccept && (
-        <Button icon="check" onClick={() => onAccept(request.id)}>
-          Aceptar
-        </Button>
-      )}
     </Card>
   );
 }
