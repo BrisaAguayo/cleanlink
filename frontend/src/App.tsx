@@ -3,6 +3,7 @@ import { ClientSignupView } from './components/client-signup-view';
 import { FeedView } from './components/feed-view';
 import { LandingView } from './components/landing-view';
 import { LoginView } from './components/login-view';
+import { ProviderProfileView } from './components/provider-profile-view';
 import { ResultsView } from './components/results-view';
 import { SignupChoiceView } from './components/signup-choice-view';
 import { TenantDashboardView } from './components/tenant-dashboard-view';
@@ -14,7 +15,8 @@ import { endSessionOnHistoryNavigation } from './session/session';
 endSessionOnHistoryNavigation();
 
 // Selección temporal de vista por URL hasta que agreguemos el enrutador:
-// /feed es la pantalla principal con sesión, /resultados la búsqueda; cualquier otra ruta, la landing.
+// /feed es la pantalla principal con sesión, /resultados la búsqueda y /proveedor?id= el perfil
+// de un proveedor ("Ver perfil"); cualquier otra ruta, la landing.
 // /registro elige el tipo de cuenta: /registro/cliente o /registro/proveedor (alta de tenant).
 // /login, /mi-negocio (gestión del tenant), /verificar (enlace del correo)
 // y /admin (admin de plataforma) son de la demo multi-tenant.
@@ -24,6 +26,8 @@ function App() {
       return <FeedView />;
     case '/resultados':
       return <ResultsView />;
+    case '/proveedor':
+      return <ProviderProfileView />;
     case '/login':
       return <LoginView />;
     case '/registro':
