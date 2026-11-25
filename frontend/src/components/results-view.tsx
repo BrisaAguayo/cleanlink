@@ -4,7 +4,6 @@ import { matchesQuery, normalize } from '../data/search';
 import { zones } from '../data/services';
 import type { ProviderKind } from '../types/provider';
 import { AppNavbar } from './app-navbar';
-import { Button } from './button';
 import { Chip } from './chip';
 import { ProviderCard } from './provider-card';
 import { ResultsFilters, type ResultsFiltersValue } from './results-filters';
@@ -90,8 +89,7 @@ export function ResultsView() {
             <ul className="grid gap-4 md:grid-cols-2">
               {results.map((provider) => (
                 <li key={provider.id}>
-                  {/* TODO: enlazar al perfil cuando exista la pantalla. */}
-                  <ProviderCard provider={provider} href="#" />
+                  <ProviderCard provider={provider} href={`/proveedor?id=${provider.id}`} />
                 </li>
               ))}
             </ul>
@@ -109,15 +107,6 @@ export function ResultsView() {
               )}
             </p>
           )}
-
-          <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg bg-surface-tint p-6">
-            <div className="flex flex-col gap-1">
-              <h2 className="text-heading">¿No encuentras lo que buscas?</h2>
-              <p className="text-body-sm text-ink-muted">Publica tu solicitud y deja que los proveedores te contacten.</p>
-            </div>
-            {/* Requiere sesión (ver ANOTACIONES.txt). */}
-            <Button href="#">Publicar solicitud</Button>
-          </div>
         </section>
       </main>
     </div>

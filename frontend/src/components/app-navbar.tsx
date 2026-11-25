@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { clearSession, getSession, homeFor } from '../session/session';
+import { clearSession, getSession, startFor } from '../session/session';
 import type { AccountType } from '../types/tenant';
 import { Avatar } from './avatar';
 import { Badge } from './badge';
@@ -26,7 +26,12 @@ function menuLinks(accountType: AccountType | null): MenuLink[] {
     case 'cliente':
       return [{ label: 'Inicio', href: '/feed', icon: 'home' }, explore, howItWorks];
     case 'proveedor':
-      return [{ label: 'Mi negocio', href: '/mi-negocio', icon: 'storefront' }, explore, howItWorks];
+      return [
+        { label: 'Inicio', href: '/feed', icon: 'home' },
+        { label: 'Mi negocio', href: '/mi-negocio', icon: 'storefront' },
+        explore,
+        howItWorks,
+      ];
     case 'admin':
       return [{ label: 'Panel de CleanLink', href: '/admin', icon: 'shield_person' }, explore];
     default:
@@ -39,7 +44,7 @@ const linkClasses =
 
 /**
  * Barra de navegación dentro de la plataforma (con sesión).
- * - Logo: lleva al inicio de la cuenta (feed, mi negocio o panel), no a la landing.
+ * - Logo: lleva al inicio (feed) sin cerrar la sesión, sea cliente o proveedor; el admin va a su panel.
  * - Notificaciones, perfil y menú abren un panel informativo; solo uno a la vez.
  */
 export function AppNavbar() {
@@ -77,7 +82,7 @@ export function AppNavbar() {
   return (
     <header className="border-b border-line bg-surface-raised">
       <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-4 px-6 py-3">
-        <Logo href={user ? homeFor(user) : '/'} />
+        <Logo href={user ? startFor(user) : '/'} />
         <div ref={ref} className="flex items-center gap-2">
           <NavbarPopover
             icon="notifications"
@@ -109,7 +114,7 @@ export function AppNavbar() {
                   </Badge>
                 </div>
                 <div className="flex flex-col border-t border-line pt-3">
-                  <a href={homeFor(user)} className={linkClasses}>
+                  <a href={startFor(user)} className={linkClasses}>
                     <Icon name="home" className="text-primary" />
                     Ir a mi inicio
                   </a>
