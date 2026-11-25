@@ -322,7 +322,7 @@ export const componentDemos: Record<string, ComponentDemo> = {
   AppNavbar: {
     file: 'app-navbar.tsx',
     description:
-      'Navegación dentro de la plataforma. El logo lleva al inicio de la cuenta. Notificaciones con contador de no leídas. El avatar (iniciales) es el único menú: cuenta, navegación con la pantalla actual marcada, Cómo funciona y cerrar sesión. Uno abierto a la vez; se cierra con clic fuera o Escape. Sin sesión, invita a entrar.',
+      'Navegación dentro de la plataforma. El logo lleva al inicio de la cuenta. Notificaciones: las nuevas con punto naranja dentro del panel, sin número en la barra. El avatar (iniciales) es el único menú: cuenta, navegación con la pantalla actual marcada, Cómo funciona y cerrar sesión. Uno abierto a la vez; se cierra con clic fuera o Escape. Sin sesión, invita a entrar.',
     render: () => (
       <div className="min-h-[360px] rounded-md border border-line">
         <AppNavbar />

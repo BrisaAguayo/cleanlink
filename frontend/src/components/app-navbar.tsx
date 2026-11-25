@@ -51,7 +51,7 @@ const linkClasses =
 /**
  * Barra de navegación dentro de la plataforma.
  * - Logo: lleva al inicio (feed) sin cerrar la sesión; el admin va a su panel.
- * - Notificaciones: avisos de la cuenta con contador de no leídas.
+ * - Notificaciones: avisos de la cuenta; las nuevas llevan un punto naranja dentro del panel (sin número en la barra).
  * - Avatar: único menú, con la cuenta, la navegación y cerrar sesión. Sin sesión, un icono que invita a entrar.
  * Solo un panel abierto a la vez; se cierra con clic fuera o Escape.
  */
@@ -112,7 +112,6 @@ export function AppNavbar() {
             label="Notificaciones"
             open={open === 'notificaciones'}
             onToggle={() => toggle('notificaciones')}
-            count={unread.length}
             panelClassName="w-[360px] gap-2 p-2"
           >
             <h2 className="px-2 pt-2 text-body font-semibold">Notificaciones</h2>

@@ -9,8 +9,6 @@ type NavbarPopoverProps = {
   onToggle: () => void;
   /** Contenido del botón en lugar del icono (p. ej. el avatar con iniciales). */
   trigger?: ReactNode;
-  /** Número sobre el botón (p. ej. notificaciones sin leer); 0 o sin valor no muestra nada. */
-  count?: number;
   /** Ancho del panel; 300px por defecto. */
   panelClassName?: string;
   children: ReactNode;
@@ -20,10 +18,10 @@ type NavbarPopoverProps = {
  * Botón de la barra con un panel desplegable debajo.
  * Controlado por AppNavbar, que decide cuál está abierto y lo cierra al hacer clic fuera o con Escape.
  */
-export function NavbarPopover({ icon, label, open, onToggle, trigger, count, panelClassName = 'w-[300px]', children }: NavbarPopoverProps) {
+export function NavbarPopover({ icon, label, open, onToggle, trigger, panelClassName = 'w-[300px]', children }: NavbarPopoverProps) {
   const panelId = useId();
   const a11y = {
-    'aria-label': count ? `${label} (${count} sin leer)` : label,
+    'aria-label': label,
     title: label,
     'aria-expanded': open,
     'aria-controls': panelId,
@@ -43,14 +41,6 @@ export function NavbarPopover({ icon, label, open, onToggle, trigger, count, pan
       ) : (
         <Button variant="ghost" icon={icon} {...a11y} className={open ? 'bg-surface-tint' : ''} />
       )}
-      {count ? (
-        <span
-          aria-hidden
-          className="pointer-events-none absolute -top-1 -right-1 flex min-w-5 items-center justify-center rounded-sm bg-pending px-1 text-caption font-bold text-on-pending"
-        >
-          {count}
-        </span>
-      ) : null}
       {open && (
         <div
           id={panelId}
