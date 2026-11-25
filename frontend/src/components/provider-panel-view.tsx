@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { formatMoney } from '../data/format';
-import { requestsForProvider } from '../data/service-requests';
+import { requestsForProvider, setRequestStatus } from '../data/service-requests';
 import { getSession } from '../session/session';
 import { AppNavbar } from './app-navbar';
 import { Badge } from './badge';
@@ -16,12 +16,19 @@ import { StatTiles } from './stat-tiles';
 export function ProviderPanelView() {
   const session = getSession();
   const isProvider = session?.user.accountType === 'proveedor';
+  // Sube cada vez que cambia un estado, para volver a leer las solicitudes.
+  const [, setVersion] = useState(0);
 
   useEffect(() => {
     if (!isProvider) window.location.assign('/login');
   }, [isProvider]);
 
   if (!session || !isProvider) return null;
+
+  function accept(id: string) {
+    setRequestStatus(id, 'aceptada');
+    setVersion((v) => v + 1);
+  }
 
   // API: GET /api/tenant/requests. Mientras tanto, datos de prueba (ver service-requests.ts).
   const requests = requestsForProvider(session.user);
@@ -64,7 +71,7 @@ export function ProviderPanelView() {
           ]}
         />
 
-        <RequestList requests={requests} viewer="proveedor" emptyText="No hay servicios con este estado." />
+        <RequestList requests={requests} viewer="proveedor" emptyText="No hay servicios con este estado." onAccept={accept} />
       </main>
     </div>
   );

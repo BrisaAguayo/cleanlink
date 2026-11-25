@@ -1,6 +1,9 @@
 import { useId, useState } from 'react';
+import { getSession } from '../session/session';
+import { AppNavbar } from './app-navbar';
 import { Button } from './button';
 import { Logo } from './logo';
+import { ThemeToggle } from './theme-toggle';
 
 export type NavLink = {
   label: string;
@@ -18,10 +21,13 @@ type PublicNavbarProps = {
 /**
  * Barra de navegación pública (sin sesión): logo, enlaces y acciones de cuenta.
  * En pantallas chicas los enlaces y acciones se agrupan en un menú desplegable.
+ * Con sesión iniciada se muestra la barra de la cuenta, para no parecer que la sesión se cerró.
  */
 export function PublicNavbar({ links, loginHref, signupHref }: PublicNavbarProps) {
   const [open, setOpen] = useState(false);
   const menuId = useId();
+
+  if (getSession()) return <AppNavbar />;
 
   const linkClasses = (current?: boolean) =>
     `no-underline transition-colors hover:text-primary ${current ? 'text-primary' : 'text-ink-muted'}`;
@@ -45,12 +51,14 @@ export function PublicNavbar({ links, loginHref, signupHref }: PublicNavbarProps
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <ThemeToggle />
           <Button variant="ghost" href={loginHref}>
             Iniciar sesión
           </Button>
           <Button href={signupHref}>Crear cuenta</Button>
         </div>
 
+        <ThemeToggle className="ml-auto md:hidden" />
         <Button
           variant="ghost"
           icon={open ? 'close' : 'menu'}

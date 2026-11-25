@@ -31,26 +31,8 @@ export function clearSession() {
   }
 }
 
-const PRIVATE_PATHS = ['/mi-negocio', '/admin'];
-
-/**
- * Si la página se mostró con los botones Atrás/Adelante del navegador, la sesión
- * termina y hay que iniciar sesión de nuevo. Recargar (F5) no la cierra.
- */
-export function endSessionOnHistoryNavigation() {
-  function end() {
-    clearSession();
-    if (PRIVATE_PATHS.includes(window.location.pathname)) window.location.replace('/login');
-  }
-
-  const [entry] = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
-  if (entry?.type === 'back_forward') end();
-
-  // Página restaurada de la caché del navegador: React no vuelve a ejecutarse.
-  window.addEventListener('pageshow', (event) => {
-    if (event.persisted) end();
-  });
-}
+// La sesión solo termina con el botón "Cerrar sesión" (o si el backend rechaza un token vencido).
+// Navegar, recargar o usar Atrás/Adelante no la cierra.
 
 /** Pantalla a la que va cada tipo de cuenta después de iniciar sesión. */
 export function homeFor(user: SessionUser) {

@@ -4,6 +4,7 @@ import { statusLabels, type ClientKind, type RequestStatus, type ServiceRequest 
 import { spaceTypeLabel } from '../data/space-types';
 import { Avatar } from './avatar';
 import { Badge, type BadgeTone } from './badge';
+import { Button } from './button';
 import { Card } from './card';
 import { Icon } from './icon';
 
@@ -23,10 +24,16 @@ type RequestCardProps = {
   request: ServiceRequest;
   /** Desde qué lado se ve: el proveedor ve al cliente; el cliente ve al proveedor. */
   viewer: 'proveedor' | 'cliente';
+  /** Solo proveedor: aceptar una solicitud pendiente. */
+  onAccept?: (id: string) => void;
 };
 
-/** Servicio solicitado o contratado: con quién, qué, dónde, cuándo y cuánto. Solo informativa. */
-export function RequestCard({ request, viewer }: RequestCardProps) {
+/**
+ * Servicio solicitado o contratado: con quién, qué, dónde, cuándo y cuánto.
+ * El proveedor puede aceptar las pendientes; fuera de eso es solo informativa.
+ */
+export function RequestCard({ request, viewer, onAccept }: RequestCardProps) {
+  const canAccept = viewer === 'proveedor' && request.status === 'pendiente' && onAccept;
   const { client, provider } = request;
   const name = viewer === 'proveedor' ? client.name : provider.name;
   const kind = viewer === 'proveedor' ? clientKindLabels[client.kind] : providerKindLabels[provider.kind];
@@ -105,6 +112,12 @@ export function RequestCard({ request, viewer }: RequestCardProps) {
           </a>
         )}
       </div>
+
+      {canAccept && (
+        <Button icon="check" onClick={() => onAccept(request.id)}>
+          Aceptar
+        </Button>
+      )}
     </Card>
   );
 }
