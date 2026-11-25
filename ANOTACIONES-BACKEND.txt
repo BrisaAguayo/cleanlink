@@ -238,7 +238,8 @@ B. ENDPOINTS QUE YA USA EL FRONTEND (por ahora con datos de prueba)
        "id": texto,
        "name": texto,
        "kind": "persona" | "equipo" | "empresa",
-       "rating": número entero de 0 a 5 (estrellas completas, ver C.1)
+       "rating": número con un decimal (promedio de reseñas, igual que en GET /api/providers),
+       "featuredService": id del primer servicio destacado, o null si no tiene
      }
 
 3. GET /api/services

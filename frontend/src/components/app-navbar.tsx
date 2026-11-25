@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { clearSession, getSession, startFor } from '../session/session';
 import type { AccountType } from '../types/tenant';
 import { Avatar } from './avatar';
-import { Badge } from './badge';
 import { Button } from './button';
 import { Icon } from './icon';
 import { Logo } from './logo';
@@ -10,12 +9,6 @@ import { NavbarPopover } from './navbar-popover';
 import { ThemeToggle } from './theme-toggle';
 
 type Panel = 'notificaciones' | 'perfil' | 'menu';
-
-const accountLabels: Record<AccountType, string> = {
-  cliente: 'Cliente',
-  proveedor: 'Proveedor',
-  admin: 'Admin de plataforma',
-};
 
 type MenuLink = { label: string; href: string; icon: string };
 
@@ -116,11 +109,6 @@ export function AppNavbar() {
                     <span className="truncate text-body font-semibold">{user.name}</span>
                     <span className="truncate text-caption text-ink-muted">{user.email}</span>
                   </div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Badge tone="persona" icon="badge">
-                    {accountLabels[user.accountType]}
-                  </Badge>
                 </div>
                 <div className="flex flex-col border-t border-line pt-3">
                   <a href={startFor(user)} className={linkClasses}>

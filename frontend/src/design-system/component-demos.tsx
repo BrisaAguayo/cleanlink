@@ -13,8 +13,10 @@ import {
   ProviderCard,
   Rating,
   SearchBar,
+  ServiceSummaryCard,
   SelectField,
   StarRating,
+  StatusBadge,
   SuggestionCard,
   TextArea,
   TextField,
@@ -56,7 +58,7 @@ export const componentDemos: Record<string, ComponentDemo> = {
   },
   Badge: {
     file: 'badge.tsx',
-    description: 'tone: persona, grupo, success, warning, danger, neutral (servicios). Siempre con texto.',
+    description: 'tone: persona, grupo, success, warning, pending (naranja), danger, neutral (servicios). Esquinas de 3px. Siempre con texto.',
     render: () => (
       <div className="flex flex-wrap items-center gap-3">
         <Badge tone="persona">Persona</Badge>
@@ -65,6 +67,7 @@ export const componentDemos: Record<string, ComponentDemo> = {
           Completado
         </Badge>
         <Badge tone="warning">Verificación pendiente</Badge>
+        <Badge tone="pending">Pendiente</Badge>
         <Badge tone="danger">Cancelado</Badge>
         <Badge>Limpieza profunda</Badge>
       </div>
@@ -161,11 +164,45 @@ export const componentDemos: Record<string, ComponentDemo> = {
   },
   SuggestionCard: {
     file: 'suggestion-card.tsx',
-    description: 'Proveedor sugerido (Lo más destacado): nombre, Persona/Equipo/Empresa, y estrellas. Recibe un ProviderSummary.',
+    description: 'Proveedor sugerido (Lo más destacado): nombre y, en una línea, Persona/Equipo/Empresa · servicio destacado · calificación (estrella + número). Toda la tarjeta lleva al perfil.',
     render: () => (
       <div className="grid max-w-4xl gap-4 md:grid-cols-2">
-        <SuggestionCard provider={{ id: 'a', name: 'Brillo Total', kind: 'equipo', rating: 5 }} />
-        <SuggestionCard provider={{ id: 'b', name: 'María López', kind: 'persona', rating: 4 }} />
+        <SuggestionCard href="#" provider={{ id: 'a', name: 'Brillo Total', kind: 'equipo', rating: 4.9, featuredService: 'profunda' }} />
+        <SuggestionCard href="#" provider={{ id: 'b', name: 'María López', kind: 'persona', rating: 4.8, featuredService: 'casas' }} />
+      </div>
+    ),
+  },
+  StatusBadge: {
+    file: 'status-badge.tsx',
+    description: 'Estado de un servicio: Pendiente (naranja), Aceptada (turquesa), Finalizada (borde).',
+    render: () => (
+      <div className="flex flex-wrap items-center gap-2">
+        <StatusBadge status="pendiente" />
+        <StatusBadge status="aceptada" />
+        <StatusBadge status="finalizada" />
+      </div>
+    ),
+  },
+  ServiceSummaryCard: {
+    file: 'service-summary-card.tsx',
+    description: 'Servicio en el panel del proveedor: cliente, estado, tipo de cliente, fecha, espacio, tipo de limpieza y costo. Toda la tarjeta lleva al detalle (/panel/servicio?id=).',
+    render: () => (
+      <div className="grid max-w-4xl gap-4 md:grid-cols-2">
+        <ServiceSummaryCard
+          href="#"
+          request={{
+            id: 'demo',
+            createdAt: '2026-11-20T09:00:00',
+            date: '2026-12-06',
+            status: 'pendiente',
+            provider: { id: '1', name: 'Brillo Total', kind: 'empresa' },
+            client: { name: 'Colegio Montessori del Pacífico', kind: 'institucion', contact: 'Mtro. Ricardo Salas', email: 'admin@ejemplo.mx' },
+            spaceType: 'escuela',
+            m2: 600,
+            lines: [{ serviceId: 'profunda', label: 'Limpieza profunda', pricePerM2: 21, m2: 600, factor: 1, subtotal: 12600 }],
+            total: 12600,
+          }}
+        />
       </div>
     ),
   },
@@ -200,10 +237,10 @@ export const componentDemos: Record<string, ComponentDemo> = {
   },
   Card: {
     file: 'card.tsx',
-    description: 'padding sm/md/lg · elevation flat/raised/floating · tone raised/tint · radius md/lg · as="a" se eleva al pasar el cursor.',
+    description: 'Plana, solo borde line · padding sm/md/lg · elevation floating solo para modales · tone raised/tint · radius md (6px) / lg (8px) · as="a" marca el borde en primary al pasar el cursor.',
     render: () => (
       <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
-        <Card as="a" href="#" elevation="raised">
+        <Card as="a" href="#">
           <div className="flex items-center gap-3">
             <Avatar name="Brillo Total" isGroup />
             <div className="flex min-w-0 flex-1 flex-col">
@@ -223,7 +260,7 @@ export const componentDemos: Record<string, ComponentDemo> = {
         </Card>
         <Card elevation="floating" padding="lg">
           <span className="text-heading">elevation floating</span>
-          <span className="text-body-sm text-ink-muted">Menús, modales, vista previa.</span>
+          <span className="text-body-sm text-ink-muted">Solo modales y lo que flota sobre el contenido.</span>
         </Card>
         <Card tone="tint" padding="lg">
           <span className="text-heading">¿No encuentras lo que buscas?</span>
