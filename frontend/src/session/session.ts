@@ -57,3 +57,16 @@ export function homeFor(user: SessionUser) {
   if (user.accountType === 'admin') return '/admin';
   return user.accountType === 'proveedor' ? '/mi-negocio' : '/feed';
 }
+
+/**
+ * Inicio de la plataforma (logo e "Ir a mi inicio"): el feed, tanto para clientes como
+ * para proveedores. Es un enlace normal, así que la sesión se conserva. El admin va a su panel.
+ */
+export function startFor(user: SessionUser) {
+  return user.accountType === 'admin' ? '/admin' : '/feed';
+}
+
+/** Un proveedor navegando la plataforma: ve la información, pero no puede contratar. */
+export function isProviderBrowsing() {
+  return getSession()?.user.accountType === 'proveedor';
+}
