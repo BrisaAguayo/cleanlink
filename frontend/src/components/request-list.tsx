@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { statusLabels, type RequestStatus, type ServiceRequest } from '../data/service-requests';
 import { Chip } from './chip';
-import { RequestCard } from './request-card';
 import { ServiceSummaryCard } from './service-summary-card';
 
 type Filter = 'todos' | RequestStatus;
@@ -16,7 +15,7 @@ type RequestListProps = {
 
 /**
  * Lista de solicitudes con filtro por estado.
- * El proveedor ve tarjetas resumidas que llevan al detalle; el cliente, la tarjeta completa.
+ * Cada tarjeta es un resumen que lleva al detalle del servicio.
  */
 export function RequestList({ requests, viewer, emptyText }: RequestListProps) {
   const [filter, setFilter] = useState<Filter>('todos');
@@ -36,11 +35,11 @@ export function RequestList({ requests, viewer, emptyText }: RequestListProps) {
         <ul className="m-0 grid list-none gap-4 p-0 md:grid-cols-2">
           {visible.map((request) => (
             <li key={request.id}>
-              {viewer === 'proveedor' ? (
-                <ServiceSummaryCard request={request} href={`/panel/servicio?id=${encodeURIComponent(request.id)}`} />
-              ) : (
-                <RequestCard request={request} />
-              )}
+              <ServiceSummaryCard
+                request={request}
+                viewer={viewer}
+                href={`${viewer === 'proveedor' ? '/panel' : '/mis-servicios'}/servicio?id=${encodeURIComponent(request.id)}`}
+              />
             </li>
           ))}
         </ul>

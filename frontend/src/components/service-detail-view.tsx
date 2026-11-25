@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { formatDate, formatMoney } from '../data/format';
-import { clientKindLabels, requestsForProvider, setRequestStatus, type ClientKind } from '../data/service-requests';
+import { providerKindLabels } from '../data/provider-kinds';
+import { clientKindLabels, requestsForClient, requestsForProvider, setRequestStatus, type ClientKind } from '../data/service-requests';
 import { spaceTypeLabel } from '../data/space-types';
 import { getSession } from '../session/session';
 import { AppNavbar } from './app-navbar';
@@ -31,25 +32,37 @@ function DetailBlock({ icon, title, children }: { icon?: string; title?: string;
   );
 }
 
+const pendingNote = {
+  proveedor: 'El cliente verá la solicitud como aceptada.',
+  cliente: 'Esperando a que el proveedor acepte tu solicitud. Te avisaremos en notificaciones.',
+};
+
 /**
- * Detalle de un servicio del panel del proveedor (/panel/servicio?id=):
- * servicio, cotización, indicaciones y datos del cliente. Aquí se acepta una solicitud pendiente.
+ * Detalle de un servicio: servicio, cotización, indicaciones y la otra parte.
+ * - proveedor (/panel/servicio?id=): ve al cliente y puede aceptar una solicitud pendiente.
+ * - cliente (/mis-servicios/servicio?id=): ve al proveedor y el enlace a su perfil.
  */
-export function ServiceDetailView() {
+export function ServiceDetailView({ viewer }: { viewer: 'proveedor' | 'cliente' }) {
   const session = getSession();
-  const isProvider = session?.user.accountType === 'proveedor';
+  const allowed = session?.user.accountType === viewer;
+  const isProvider = viewer === 'proveedor';
   // Sube al aceptar, para volver a leer la solicitud con su nuevo estado.
   const [, setVersion] = useState(0);
 
   useEffect(() => {
-    if (!isProvider) window.location.assign('/login');
-  }, [isProvider]);
+    if (!allowed) window.location.assign('/login');
+  }, [allowed]);
 
-  if (!session || !isProvider) return null;
+  if (!session || !allowed) return null;
 
-  // API: GET /api/tenant/requests/{id}. Mientras tanto, se busca entre las del panel.
+  // API: GET /api/tenant/requests/{id} (proveedor) o GET /api/requests/{id} (cliente).
+  // Mientras tanto, se busca entre las de su lista.
   const id = new URLSearchParams(window.location.search).get('id');
-  const request = requestsForProvider(session.user).find((r) => r.id === id);
+  const list = isProvider ? requestsForProvider(session.user) : requestsForClient(session.user);
+  const request = list.find((r) => r.id === id);
+  const back = isProvider ? { href: '/panel', label: 'Clientes y servicios' } : { href: '/mis-servicios', label: 'Mis servicios' };
+  const other = request && (isProvider ? request.client : request.provider);
+  const otherIsGroup = request ? (isProvider ? request.client.kind !== 'persona' : request.provider.kind !== 'persona') : false;
 
   function accept() {
     if (!request) return;
@@ -61,12 +74,12 @@ export function ServiceDetailView() {
     <div className="min-h-svh">
       <AppNavbar />
       <main className="mx-auto flex max-w-[1100px] flex-col gap-6 px-6 py-8">
-        <a href="/panel" className="inline-flex items-center gap-1 self-start text-label text-primary no-underline">
+        <a href={back.href} className="inline-flex items-center gap-1 self-start text-label text-primary no-underline">
           <Icon name="arrow_back" size={18} />
-          Clientes y servicios
+          {back.label}
         </a>
 
-        {!request ? (
+        {!request || !other ? (
           <p className="rounded-lg border border-line bg-surface-raised p-8 text-center text-body text-ink-muted">
             No encontramos este servicio.
           </p>
@@ -74,10 +87,12 @@ export function ServiceDetailView() {
           <>
             <header className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex min-w-0 items-center gap-3">
-                <Avatar name={request.client.name} isGroup={request.client.kind !== 'persona'} size={48} />
+                <Avatar name={other.name} isGroup={otherIsGroup} size={48} />
                 <div className="flex min-w-0 flex-col">
-                  <h1 className="text-title break-words">{request.client.name}</h1>
-                  <span className="text-body-sm text-ink-muted">Solicitud recibida el {formatDate(request.createdAt)}</span>
+                  <h1 className="text-title break-words">{other.name}</h1>
+                  <span className="text-body-sm text-ink-muted">
+                    Solicitud {isProvider ? 'recibida' : 'enviada'} el {formatDate(request.createdAt)}
+                  </span>
                 </div>
               </div>
               <StatusBadge status={request.status} />
@@ -148,44 +163,62 @@ export function ServiceDetailView() {
               </div>
 
               <div className="flex flex-col gap-4">
-                <DetailBlock icon={clientKindIcons[request.client.kind]} title="Cliente">
-                  <div className="flex flex-col gap-3">
-                    <dl className="m-0 flex flex-col gap-3 text-body-sm">
-                      <div>
-                        <dt className="text-caption text-ink-muted">Tipo de cliente</dt>
-                        <dd className="m-0 mt-1">
-                          <Badge tone={request.client.kind === 'persona' ? 'persona' : 'grupo'}>
-                            {clientKindLabels[request.client.kind]}
-                          </Badge>
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-caption text-ink-muted">Contacto</dt>
-                        <dd className="m-0">{request.client.contact}</dd>
-                      </div>
-                    </dl>
-                    <div className="flex flex-col gap-1 border-t border-line pt-3 text-body-sm">
-                      <a href={`mailto:${request.client.email}`} className="inline-flex items-center gap-2 py-1 break-all text-ink no-underline hover:text-primary">
-                        <Icon name="mail" size={18} className="text-ink-muted" />
-                        {request.client.email}
-                      </a>
-                      {request.client.phone && (
-                        <a href={`tel:${request.client.phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-2 py-1 text-ink no-underline hover:text-primary">
-                          <Icon name="call" size={18} className="text-ink-muted" />
-                          {request.client.phone}
+                {isProvider ? (
+                  <DetailBlock icon={clientKindIcons[request.client.kind]} title="Cliente">
+                    <div className="flex flex-col gap-3">
+                      <dl className="m-0 flex flex-col gap-3 text-body-sm">
+                        <div>
+                          <dt className="text-caption text-ink-muted">Tipo de cliente</dt>
+                          <dd className="m-0 mt-1">
+                            <Badge tone={request.client.kind === 'persona' ? 'persona' : 'grupo'}>
+                              {clientKindLabels[request.client.kind]}
+                            </Badge>
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-caption text-ink-muted">Contacto</dt>
+                          <dd className="m-0">{request.client.contact}</dd>
+                        </div>
+                      </dl>
+                      <div className="flex flex-col gap-1 border-t border-line pt-3 text-body-sm">
+                        <a href={`mailto:${request.client.email}`} className="inline-flex items-center gap-2 py-1 break-all text-ink no-underline hover:text-primary">
+                          <Icon name="mail" size={18} className="text-ink-muted" />
+                          {request.client.email}
                         </a>
-                      )}
+                        {request.client.phone && (
+                          <a href={`tel:${request.client.phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-2 py-1 text-ink no-underline hover:text-primary">
+                            <Icon name="call" size={18} className="text-ink-muted" />
+                            {request.client.phone}
+                          </a>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </DetailBlock>
+                  </DetailBlock>
+                ) : (
+                  <DetailBlock icon={otherIsGroup ? 'groups' : 'person'} title="Proveedor">
+                    <div className="flex flex-col gap-3">
+                      <dl className="m-0 text-body-sm">
+                        <dt className="text-caption text-ink-muted">Tipo de proveedor</dt>
+                        <dd className="m-0 mt-1">
+                          <Badge tone={otherIsGroup ? 'grupo' : 'persona'}>{providerKindLabels[request.provider.kind]}</Badge>
+                        </dd>
+                      </dl>
+                      <Button variant="outline" href={`/proveedor?id=${request.provider.id}`} icon="storefront">
+                        Ver perfil del proveedor
+                      </Button>
+                    </div>
+                  </DetailBlock>
+                )}
 
                 {request.status === 'pendiente' && (
                   <DetailBlock>
                     <div className="flex flex-col gap-2">
-                      <Button icon="check" onClick={accept}>
-                        Aceptar solicitud
-                      </Button>
-                      <span className="text-center text-caption text-ink-muted">El cliente verá la solicitud como aceptada.</span>
+                      {isProvider && (
+                        <Button icon="check" onClick={accept}>
+                          Aceptar solicitud
+                        </Button>
+                      )}
+                      <span className={`text-caption text-ink-muted ${isProvider ? 'text-center' : ''}`}>{pendingNote[viewer]}</span>
                     </div>
                   </DetailBlock>
                 )}

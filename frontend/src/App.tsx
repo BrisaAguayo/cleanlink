@@ -16,7 +16,7 @@ import { VerifyEmailView } from './components/verify-email-view';
 // Selección temporal de vista por URL hasta que agreguemos el enrutador:
 // /feed es la pantalla principal con sesión, /resultados la búsqueda y /proveedor?id= el perfil
 // de un proveedor ("Ver perfil"); /mis-servicios (cliente) y /panel (proveedor) muestran los
-// servicios contratados y prestados, y /panel/servicio?id= el detalle de uno; cualquier otra ruta, la landing.
+// servicios contratados y prestados, y /panel/servicio?id= o /mis-servicios/servicio?id= el detalle de uno; cualquier otra ruta, la landing.
 // /registro elige el tipo de cuenta: /registro/cliente o /registro/proveedor (alta de tenant).
 // /login, /mi-negocio (gestión del tenant), /verificar (enlace del correo)
 // y /admin (admin de plataforma) son de la demo multi-tenant.
@@ -33,7 +33,9 @@ function App() {
     case '/panel':
       return <ProviderPanelView />;
     case '/panel/servicio':
-      return <ServiceDetailView />;
+      return <ServiceDetailView viewer="proveedor" />;
+    case '/mis-servicios/servicio':
+      return <ServiceDetailView viewer="cliente" />;
     case '/login':
       return <LoginView />;
     case '/registro':
