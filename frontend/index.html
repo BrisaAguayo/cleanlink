@@ -15,6 +15,13 @@
       rel="stylesheet"
     />
     <title>CleanLink</title>
+    <script>
+      // Aplica el tema elegido (src/theme/theme.ts) antes de pintar, para que no parpadee.
+      try {
+        var theme = localStorage.getItem('cleanlink.theme');
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

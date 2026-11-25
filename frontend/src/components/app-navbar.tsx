@@ -7,6 +7,7 @@ import { Button } from './button';
 import { Icon } from './icon';
 import { Logo } from './logo';
 import { NavbarPopover } from './navbar-popover';
+import { ThemeToggle } from './theme-toggle';
 
 type Panel = 'notificaciones' | 'perfil' | 'menu';
 
@@ -91,6 +92,7 @@ export function AppNavbar() {
       <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-4 px-6 py-3">
         <Logo href={user ? startFor(user) : '/'} />
         <div ref={ref} className="flex items-center gap-2">
+          <ThemeToggle />
           <NavbarPopover
             icon="notifications"
             label="Notificaciones"
