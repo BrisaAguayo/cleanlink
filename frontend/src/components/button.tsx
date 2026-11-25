@@ -26,7 +26,7 @@ const base =
 const variants: Record<ButtonVariant, string> = {
   primary: 'bg-primary text-on-primary enabled:hover:brightness-95',
   secondary: 'bg-secondary text-on-secondary enabled:hover:brightness-95',
-  outline: 'bg-surface-raised border-primary text-primary enabled:hover:bg-primary-soft',
+  outline: 'bg-surface-raised border-primary text-primary enabled:hover:bg-surface-tint',
   ghost: 'bg-transparent text-ink enabled:hover:bg-surface-tint',
 };
 
