@@ -18,16 +18,23 @@ const accountLabels: Record<AccountType, string> = {
 
 type MenuLink = { label: string; href: string; icon: string };
 
+/** Panel de cada tipo de cuenta: servicios contratados (cliente) o clientes y servicios (proveedor). */
+const accountPanel: Partial<Record<AccountType, MenuLink>> & Record<'cliente' | 'proveedor', MenuLink> = {
+  cliente: { label: 'Mis servicios', href: '/mis-servicios', icon: 'receipt_long' },
+  proveedor: { label: 'Clientes y servicios', href: '/panel', icon: 'admin_panel_settings' },
+};
+
 /** Enlaces del menú según el tipo de cuenta. */
 function menuLinks(accountType: AccountType | null): MenuLink[] {
   const explore = { label: 'Buscar limpieza', href: '/resultados', icon: 'search' };
   const howItWorks = { label: 'Cómo funciona', href: '/#como-funciona', icon: 'help' };
   switch (accountType) {
     case 'cliente':
-      return [{ label: 'Inicio', href: '/feed', icon: 'home' }, explore, howItWorks];
+      return [{ label: 'Inicio', href: '/feed', icon: 'home' }, accountPanel.cliente, explore, howItWorks];
     case 'proveedor':
       return [
         { label: 'Inicio', href: '/feed', icon: 'home' },
+        accountPanel.proveedor,
         { label: 'Mi negocio', href: '/mi-negocio', icon: 'storefront' },
         explore,
         howItWorks,
@@ -118,6 +125,12 @@ export function AppNavbar() {
                     <Icon name="home" className="text-primary" />
                     Ir a mi inicio
                   </a>
+                  {accountPanel[user.accountType] && (
+                    <a href={accountPanel[user.accountType]!.href} className={linkClasses}>
+                      <Icon name={accountPanel[user.accountType]!.icon} className="text-primary" />
+                      {accountPanel[user.accountType]!.label}
+                    </a>
+                  )}
                   <button type="button" onClick={logout} className={`${linkClasses} cursor-pointer text-left`}>
                     <Icon name="logout" className="text-primary" />
                     Cerrar sesión
