@@ -11,10 +11,11 @@ type RequestListProps = {
   requests: ServiceRequest[];
   viewer: 'proveedor' | 'cliente';
   emptyText: string;
+  onAccept?: (id: string) => void;
 };
 
 /** Lista de solicitudes con filtro por estado. */
-export function RequestList({ requests, viewer, emptyText }: RequestListProps) {
+export function RequestList({ requests, viewer, emptyText, onAccept }: RequestListProps) {
   const [filter, setFilter] = useState<Filter>('todos');
   const visible = filter === 'todos' ? requests : requests.filter((r) => r.status === filter);
 
@@ -32,7 +33,7 @@ export function RequestList({ requests, viewer, emptyText }: RequestListProps) {
         <ul className="m-0 grid list-none gap-4 p-0 md:grid-cols-2">
           {visible.map((request) => (
             <li key={request.id}>
-              <RequestCard request={request} viewer={viewer} />
+              <RequestCard request={request} viewer={viewer} onAccept={onAccept} />
             </li>
           ))}
         </ul>

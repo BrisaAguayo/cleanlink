@@ -54,6 +54,33 @@ export function saveRequest(data: Omit<ServiceRequest, 'id' | 'createdAt'>) {
   }
 }
 
+// Cambios de estado (p. ej. el proveedor acepta) de cualquier solicitud, por id.
+// API: PUT /api/tenant/requests/{id} con { status }.
+const STATUS_KEY = 'cleanlink.request-status';
+
+function loadStatuses(): Record<string, RequestStatus> {
+  try {
+    const raw = localStorage.getItem(STATUS_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, RequestStatus>) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function setRequestStatus(id: string, status: RequestStatus) {
+  try {
+    localStorage.setItem(STATUS_KEY, JSON.stringify({ ...loadStatuses(), [id]: status }));
+  } catch {
+    // Sin almacenamiento: el cambio dura lo que la página.
+  }
+}
+
+/** Aplica los cambios de estado guardados. */
+function withStatuses(requests: ServiceRequest[]) {
+  const statuses = loadStatuses();
+  return requests.map((r) => (statuses[r.id] ? { ...r, status: statuses[r.id] } : r));
+}
+
 /** Arma una solicitud de prueba con la cotización calculada igual que en el perfil. */
 function mock(
   id: string,
@@ -82,7 +109,7 @@ export function requestsForClient(user: { name: string; email: string }): Servic
     mock('demo-c4', '17', { id: '17', name: 'Sofía Torres', kind: 'persona' }, me, ['profunda'], 'casa', 95, '2026-10-18', 'finalizada'),
   ];
   const mine = loadLocal().filter((r) => normalize(r.client.email) === normalize(user.email));
-  return [...mine, ...mocks].sort(byNewest);
+  return withStatuses([...mine, ...mocks]).sort(byNewest);
 }
 
 /**
@@ -101,5 +128,5 @@ export function requestsForProvider(user: { name: string }): ServiceRequest[] {
     mock('demo-p6', '1', me, { name: 'Bodegas Frontera Logística', kind: 'empresa', contact: 'Ing. Marco Ibarra', email: 'operaciones@fronteralog.mx', phone: '664 200 8811' }, ['profunda'], 'bodega', 700, '2026-11-12', 'finalizada'),
   ];
   const mine = loadLocal().filter((r) => normalize(r.provider.name) === normalize(user.name));
-  return [...mine, ...mocks].sort(byNewest);
+  return withStatuses([...mine, ...mocks]).sort(byNewest);
 }
